@@ -483,7 +483,7 @@ impl<'vicinity, 'config, T: Config> StackStateT<'config> for SubstrateStackState
 			code.len(),
 			address
 		);
-		Module::<T>::create_account(address, code);
+		AccountCodes::insert(address, code);
 	}
 
 	fn transfer(&mut self, transfer: Transfer) -> Result<(), ExitError> {
