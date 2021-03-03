@@ -1343,7 +1343,7 @@ dependencies = [
 name = "fc-rpc"
 version = "0.1.0"
 dependencies = [
- "ethereum 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ethereum 0.7.1 (git+https://github.com/rust-blockchain/ethereum?branch=master)",
  "ethereum-types",
  "fc-consensus",
  "fc-rpc-core",
