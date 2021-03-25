@@ -91,7 +91,7 @@ impl<T: Config> Runner<T> {
 
 		let used_gas = U256::from(executor.used_gas());
 		let actual_fee = executor.fee(gas_price);
-		log::trace!(
+		log::debug!(
 			target: "evm",
 			"Execution {:?} [source: {:?}, value: {}, gas_limit: {}, actual_fee: {}]",
 			reason,
@@ -106,7 +106,7 @@ impl<T: Config> Runner<T> {
 		let state = executor.into_state();
 
 		for address in state.substate.deletes {
-			log::trace!(
+			log::debug!(
 				target: "evm",
 				"Deleting account at {:?}",
 				address
@@ -445,7 +445,7 @@ impl<'vicinity, 'config, T: Config> StackStateT<'config> for SubstrateStackState
 
 	fn set_storage(&mut self, address: H160, index: H256, value: H256) {
 		if value == H256::default() {
-			log::trace!(
+			log::debug!(
 				target: "evm",
 				"Removing storage for {:?} [index: {:?}]",
 				address,
@@ -453,7 +453,7 @@ impl<'vicinity, 'config, T: Config> StackStateT<'config> for SubstrateStackState
 			);
 			AccountStorages::remove(address, index);
 		} else {
-			log::trace!(
+			log::debug!(
 				target: "evm",
 				"Updating storage for {:?} [index: {:?}, value: {:?}]",
 				address,
@@ -477,7 +477,7 @@ impl<'vicinity, 'config, T: Config> StackStateT<'config> for SubstrateStackState
 	}
 
 	fn set_code(&mut self, address: H160, code: Vec<u8>) {
-		log::trace!(
+		log::debug!(
 			target: "evm",
 			"Inserting code ({} bytes) at {:?}",
 			code.len(),
