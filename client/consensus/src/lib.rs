@@ -100,6 +100,7 @@ impl<B, I, C> FrontierBlockImport<B, I, C> where
 	}
 }
 
+#[async_trait::async_trait]
 impl<B, I, C> BlockImport<B> for FrontierBlockImport<B, I, C> where
 	B: BlockT,
 	I: BlockImport<B, Transaction = sp_api::TransactionFor<C, B>> + Send + Sync,
