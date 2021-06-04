@@ -311,7 +311,7 @@ impl<T: Config> Module<T> {
 					frame_system::Module::<T>::block_number()
 				)
 			),
-			gas_limit: T::BlockGasLimit::get(),
+			gas_limit: <T as Config>::BlockGasLimit::get(),
 			gas_used: receipts.clone().into_iter().fold(U256::zero(), |acc, r| acc + r.used_gas),
 			timestamp: UniqueSaturatedInto::<u64>::unique_saturated_into(
 				pallet_timestamp::Module::<T>::get()

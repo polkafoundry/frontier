@@ -9,12 +9,14 @@ license = "Apache-2.0"
 [dependencies]
 codec = { package = "parity-scale-codec", version = "2.0.0", default-features = false }
 serde = { version = "1.0.101", optional = true }
-sp-std = { version = "3.0.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.1" }
-sp-core = { version = "3.0.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.1" }
-sp-runtime = { version = "3.0.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.1" }
-sp-inherents = { version = "3.0.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.1" }
-frame-system = { version = "3.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.1" }
-frame-support = { version = "3.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.1" }
+sp-std = { version = "3.0.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "master" }
+sp-core = { version = "3.0.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "master" }
+sp-runtime = { version = "3.0.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "master" }
+sp-inherents = { version = "3.0.0-dev", git = "https://github.com/paritytech/substrate.git", branch = "master" }
+frame-system = { version = "3.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
+frame-support = { version = "3.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
+async-trait = { version = "0.1.48", optional = true }
+pallet-evm = { path = "../evm", default-features = false }
 
 [features]
 default = ["std"]
@@ -27,4 +29,6 @@ std = [
 	"sp-inherents/std",
 	"frame-system/std",
 	"frame-support/std",
+	"async-trait",
+	"pallet-evm/std",
 ]

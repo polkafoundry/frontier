@@ -22,18 +22,15 @@ use codec::{Encode, Decode};
 use sp_std::{result, cmp::{min, max}};
 use sp_runtime::RuntimeDebug;
 use sp_core::U256;
-use sp_inherents::{InherentIdentifier, InherentData, ProvideInherent, IsFatalError};
-#[cfg(feature = "std")]
-use sp_inherents::ProvideInherentData;
+use sp_inherents::{IsFatalError};
 use frame_support::{
 	decl_module, decl_storage, decl_event,
-	traits::Get,
+	traits::Get, weights::Weight,
+	inherent::{InherentData, ProvideInherent, InherentIdentifier},
 };
 use frame_system::ensure_none;
 
 pub trait Config: frame_system::Config {
-	/// The overarching event type.
-	type Event: From<Event> + Into<<Self as frame_system::Config>::Event>;
 	/// Bound divisor for min gas price.
 	type MinGasPriceBoundDivisor: Get<U256>;
 }
@@ -43,17 +40,20 @@ decl_storage! {
 		MinGasPrice get(fn min_gas_price) config(): U256;
 		TargetMinGasPrice: Option<U256>;
 	}
-}
-
-decl_event!(
-	pub enum Event {
-		TargetMinGasPriceSet(U256),
+	add_extra_genesis {
+		build(|_config: &GenesisConfig| {
+			MinGasPrice::set(U256::from(1));
+		});
 	}
-);
+}
 
 decl_module! {
 	pub struct Module<T: Config> for enum Call where origin: T::Origin {
-		fn deposit_event() = default;
+		fn on_initialize(_block_number: T::BlockNumber) -> Weight {
+			TargetMinGasPrice::kill();
+
+			T::DbWeight::get().writes(1)
+		}
 
 		fn on_finalize(n: T::BlockNumber) {
 			if let Some(target) = TargetMinGasPrice::get() {
@@ -64,11 +64,9 @@ decl_module! {
 
 				MinGasPrice::set(min(upper_limit, max(lower_limit, target)));
 			}
-
-			TargetMinGasPrice::kill();
 		}
 
-		#[weight = 0]
+		#[weight = T::DbWeight::get().writes(1)]
 		fn note_min_gas_price_target(
 			origin,
 			target: U256,
@@ -76,8 +74,13 @@ decl_module! {
 			ensure_none(origin)?;
 
 			TargetMinGasPrice::set(Some(target));
-			Self::deposit_event(Event::TargetMinGasPriceSet(target));
 		}
+	}
+}
+
+impl<T: Config> pallet_evm::FeeCalculator for Module<T> {
+	fn min_gas_price() -> U256 {
+		MinGasPrice::get()
 	}
 }
 
@@ -90,6 +93,18 @@ impl IsFatalError for InherentError {
 	}
 }
 
+impl InherentError {
+	/// Try to create an instance ouf of the given identifier and data.
+	#[cfg(feature = "std")]
+	pub fn try_from(id: &InherentIdentifier, data: &[u8]) -> Option<Self> {
+		if id == &INHERENT_IDENTIFIER {
+			<InherentError as codec::Decode>::decode(&mut &data[..]).ok()
+		} else {
+			None
+		}
+	}
+}
+
 pub const INHERENT_IDENTIFIER: InherentIdentifier = *b"dynfee0_";
 
 pub type InherentType = U256;
@@ -98,20 +113,27 @@ pub type InherentType = U256;
 pub struct InherentDataProvider(pub InherentType);
 
 #[cfg(feature = "std")]
-impl ProvideInherentData for InherentDataProvider {
-	fn inherent_identifier(&self) -> &'static InherentIdentifier {
-		&INHERENT_IDENTIFIER
-	}
-
+#[async_trait::async_trait]
+impl sp_inherents::InherentDataProvider for InherentDataProvider {
 	fn provide_inherent_data(
 		&self,
-		inherent_data: &mut InherentData
+		inherent_data: &mut InherentData,
 	) -> Result<(), sp_inherents::Error> {
 		inherent_data.put_data(INHERENT_IDENTIFIER, &self.0)
 	}
 
-	fn error_to_string(&self, _: &[u8]) -> Option<String> {
-		None
+	async fn try_handle_error(
+		&self,
+		identifier: &InherentIdentifier,
+		error: &[u8],
+	) -> Option<Result<(), sp_inherents::Error>> {
+		if *identifier != INHERENT_IDENTIFIER {
+			return None
+		}
+
+		let error = InherentError::decode(&mut &error[..]).ok()?;
+
+		Some(Err(sp_inherents::Error::Application(Box::from(format!("{:?}", error)))))
 	}
 }
 
@@ -128,5 +150,9 @@ impl<T: Config> ProvideInherent for Module<T> {
 
 	fn check_inherent(_call: &Self::Call, _data: &InherentData) -> result::Result<(), Self::Error> {
 		Ok(())
+	}
+
+	fn is_inherent(call: &Self::Call) -> bool {
+		true
 	}
 }

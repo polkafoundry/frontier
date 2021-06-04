@@ -14,8 +14,5 @@ members = [
 	"client/rpc",
 	"primitives/consensus",
 	"primitives/evm",
-	"primitives/rpc",
-	"template/node",
-	"template/runtime",
-	"template/test-utils/client",
+	"primitives/rpc"
 ]
