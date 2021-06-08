@@ -16,16 +16,16 @@ ethereum-types = "0.11.0"
 fc-consensus = { path = "../consensus" }
 fc-rpc-core = { path = "../rpc-core" }
 fp-rpc = { path = "../../primitives/rpc" }
-sp-io = { git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.3" }
-sp-runtime = { git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.3" }
-sp-api = { git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.3" }
-sp-transaction-pool = { git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.3" }
-sp-storage = { git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.3" }
-sp-blockchain = { git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.3" }
-sc-service = { git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.3" }
-sc-client-api = { git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.3" }
-sc-rpc = { git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.3" }
-sc-network = { git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.3" }
+sp-io = { git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.4" }
+sp-runtime = { git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.4" }
+sp-api = { git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.4" }
+sp-transaction-pool = { git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.4" }
+sp-storage = { git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.4" }
+sp-blockchain = { git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.4" }
+sc-service = { git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.4" }
+sc-client-api = { git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.4" }
+sc-rpc = { git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.4" }
+sc-network = { git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.4" }
 pallet-evm = { path = "../../frame/evm" }
 pallet-ethereum = { path = "../../frame/ethereum" }
 ethereum = { version = "0.7", features = ["with-codec"] }
