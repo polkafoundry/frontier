@@ -2,16 +2,16 @@
 name = "fp-consensus"
 version = "1.0.0"
 authors = ["Parity Technologies <admin@parity.io>"]
-description = "Primitives for Frontier consensus"
+description = "Primitives for polkadot-v0.9.5 consensus"
 edition = "2018"
 license = "Apache-2.0"
 homepage = "https://substrate.dev"
-repository = "https://github.com/paritytech/frontier/"
+repository = "https://github.com/paritytech/polkadot-v0.9.5/"
 
 [dependencies]
-sp-std = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "frontier" }
-sp-runtime = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "frontier" }
-sp-core = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "frontier" }
+sp-std = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.5" }
+sp-runtime = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.5" }
+sp-core = { version = "3.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.5" }
 codec = { package = "parity-scale-codec", version = "2.0.0", default-features = false, features = ["derive"] }
 ethereum = { version = "0.7.1", default-features = false, features = ["with-codec"] }
 rlp = { version = "0.5", default-features = false }

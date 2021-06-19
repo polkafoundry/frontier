@@ -5,7 +5,7 @@ authors = ["Parity Technologies <admin@parity.io>"]
 edition = "2018"
 license = "Apache-2.0"
 homepage = "https://substrate.dev"
-repository = "https://github.com/paritytech/frontier/"
+repository = "https://github.com/paritytech/polkadot-v0.9.5/"
 description = "Test vector support for EVM pallet."
 
 [dependencies]

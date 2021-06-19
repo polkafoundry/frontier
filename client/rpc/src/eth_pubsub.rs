@@ -249,7 +249,7 @@ impl<B: BlockT, P, C, BE, H: ExHashT> EthPubSubApiT for EthPubSubApi<B, P, C, BE
 		B: BlockT<Hash=H256> + Send + Sync + 'static,
 		P: TransactionPool<Block=B> + Send + Sync + 'static,
 		C: ProvideRuntimeApi<B> + StorageProvider<B,BE> +
-			BlockchainEvents<B>,
+		BlockchainEvents<B>,
 		C: HeaderBackend<B> + HeaderMetadata<B, Error=BlockChainError> + 'static,
 		C: Send + Sync + 'static,
 		C::Api: EthereumRuntimeRPCApi<B>,
@@ -276,42 +276,42 @@ impl<B: BlockT, P, C, BE, H: ExHashT> EthPubSubApiT for EthPubSubApi<B, P, C, BE
 			Kind::Logs => {
 				self.subscriptions.add(subscriber, |sink| {
 					let stream = client.import_notification_stream()
-					.filter_map(move |notification| {
-						if notification.is_new_best {
-							let id = BlockId::Hash(notification.hash);
+						.filter_map(move |notification| {
+							if notification.is_new_best {
+								let id = BlockId::Hash(notification.hash);
 
-							let schema = frontier_backend_client::onchain_storage_schema::<B, C, BE>(
-								client.as_ref(), id
-							);
-							let handler = overrides.schemas.get(&schema).unwrap_or(&overrides.fallback);
+								let schema = frontier_backend_client::onchain_storage_schema::<B, C, BE>(
+									client.as_ref(), id
+								);
+								let handler = overrides.schemas.get(&schema).unwrap_or(&overrides.fallback);
 
-							let block = handler.current_block(&id);
-							let receipts = handler.current_receipts(&id);
+								let block = handler.current_block(&id);
+								let receipts = handler.current_receipts(&id);
 
-							match (receipts, block) {
-								(Some(receipts), Some(block)) =>
-									futures::future::ready(Some((block, receipts))),
-								_ => futures::future::ready(None)
+								match (receipts, block) {
+									(Some(receipts), Some(block)) =>
+										futures::future::ready(Some((block, receipts))),
+									_ => futures::future::ready(None)
+								}
+							} else {
+								futures::future::ready(None)
 							}
-						} else {
-							futures::future::ready(None)
-						}
-					})
-					.flat_map(move |(block, receipts)| {
-						futures::stream::iter(
-							SubscriptionResult::new()
-								.logs(block, receipts, &filtered_params)
-						)
-					})
-					.map(|x| {
-						return Ok::<Result<
-							PubSubResult,
-							jsonrpc_core::types::error::Error
-						>, ()>(Ok(
-							PubSubResult::Log(Box::new(x))
-						));
-					})
-					.compat();
+						})
+						.flat_map(move |(block, receipts)| {
+							futures::stream::iter(
+								SubscriptionResult::new()
+									.logs(block, receipts, &filtered_params)
+							)
+						})
+						.map(|x| {
+							return Ok::<Result<
+								PubSubResult,
+								jsonrpc_core::types::error::Error
+							>, ()>(Ok(
+								PubSubResult::Log(Box::new(x))
+							));
+						})
+						.compat();
 					sink
 						.sink_map_err(|e| warn!(
 							"Error sending notifications: {:?}", e
@@ -323,28 +323,28 @@ impl<B: BlockT, P, C, BE, H: ExHashT> EthPubSubApiT for EthPubSubApi<B, P, C, BE
 			Kind::NewHeads => {
 				self.subscriptions.add(subscriber, |sink| {
 					let stream = client.import_notification_stream()
-					.filter_map(move |notification| {
-						if notification.is_new_best {
-							let id = BlockId::Hash(notification.hash);
+						.filter_map(move |notification| {
+							if notification.is_new_best {
+								let id = BlockId::Hash(notification.hash);
 
-							let schema = frontier_backend_client::onchain_storage_schema::<B, C, BE>(
-								client.as_ref(), id
-							);
-							let handler = overrides.schemas.get(&schema).unwrap_or(&overrides.fallback);
+								let schema = frontier_backend_client::onchain_storage_schema::<B, C, BE>(
+									client.as_ref(), id
+								);
+								let handler = overrides.schemas.get(&schema).unwrap_or(&overrides.fallback);
 
-							let block = handler.current_block(&id);
-							futures::future::ready(block)
-						} else {
-							futures::future::ready(None)
-						}
-					})
-					.map(|block| {
-						return Ok::<_, ()>(Ok(
-							SubscriptionResult::new()
-								.new_heads(block)
-						));
-					})
-					.compat();
+								let block = handler.current_block(&id);
+								futures::future::ready(block)
+							} else {
+								futures::future::ready(None)
+							}
+						})
+						.map(|block| {
+							return Ok::<_, ()>(Ok(
+								SubscriptionResult::new()
+									.new_heads(block)
+							));
+						})
+						.compat();
 					sink
 						.sink_map_err(|e| warn!(
 							"Error sending notifications: {:?}", e
@@ -362,41 +362,41 @@ impl<B: BlockT, P, C, BE, H: ExHashT> EthPubSubApiT for EthPubSubApi<B, P, C, BE
 				) {
 					self.subscriptions.add(subscriber, |sink| {
 						let stream = stream
-						.flat_map(|(_block, changes)| {
-							let mut transactions: Vec<ethereum::Transaction> = vec![];
-							let storage: Vec<Option<StorageData>> = changes.iter()
-								.filter_map(|(o_sk, _k, v)| {
-									if o_sk.is_none() {
-										Some(v.cloned())
-									} else { None }
-								}).collect();
-							for change in storage {
-								if let Some(data) = change {
-									let storage: Vec<(
-										ethereum::Transaction,
-										TransactionStatus,
-										ethereum::Receipt
-									)> = Decode::decode(&mut &data.0[..]).unwrap();
-									let tmp: Vec<ethereum::Transaction> =
-										storage.iter().map(|x| x.0.clone()).collect();
-									transactions.extend(tmp);
+							.flat_map(|(_block, changes)| {
+								let mut transactions: Vec<ethereum::Transaction> = vec![];
+								let storage: Vec<Option<StorageData>> = changes.iter()
+									.filter_map(|(o_sk, _k, v)| {
+										if o_sk.is_none() {
+											Some(v.cloned())
+										} else { None }
+									}).collect();
+								for change in storage {
+									if let Some(data) = change {
+										let storage: Vec<(
+											ethereum::Transaction,
+											TransactionStatus,
+											ethereum::Receipt
+										)> = Decode::decode(&mut &data.0[..]).unwrap();
+										let tmp: Vec<ethereum::Transaction> =
+											storage.iter().map(|x| x.0.clone()).collect();
+										transactions.extend(tmp);
+									}
 								}
-							}
-							futures::stream::iter(transactions)
-						})
-						.map(|transaction| {
-							return Ok::<Result<
-								PubSubResult,
-								jsonrpc_core::types::error::Error
-							>, ()>(Ok(
-								PubSubResult::TransactionHash(H256::from_slice(
-									Keccak256::digest(
-										&rlp::encode(&transaction)
-									).as_slice()
-								))
-							));
-						})
-						.compat();
+								futures::stream::iter(transactions)
+							})
+							.map(|transaction| {
+								return Ok::<Result<
+									PubSubResult,
+									jsonrpc_core::types::error::Error
+								>, ()>(Ok(
+									PubSubResult::TransactionHash(H256::from_slice(
+										Keccak256::digest(
+											&rlp::encode(&transaction)
+										).as_slice()
+									))
+								));
+							})
+							.compat();
 
 						sink
 							.sink_map_err(|e| warn!(
@@ -411,26 +411,26 @@ impl<B: BlockT, P, C, BE, H: ExHashT> EthPubSubApiT for EthPubSubApi<B, P, C, BE
 				self.subscriptions.add(subscriber, |sink| {
 					let mut previous_syncing = network.is_major_syncing();
 					let stream = client.import_notification_stream()
-					.filter_map(move |notification| {
-						let syncing = network.is_major_syncing();
-						if notification.is_new_best && previous_syncing != syncing {
-							previous_syncing = syncing;
-							futures::future::ready(Some(syncing))
-						} else {
-							futures::future::ready(None)
-						}
-					})
-					.map(|syncing| {
-						return Ok::<Result<
-							PubSubResult,
-							jsonrpc_core::types::error::Error
-						>, ()>(Ok(
-							PubSubResult::SyncState(PubSubSyncStatus {
-								syncing: syncing
-							})
-						));
-					})
-					.compat();
+						.filter_map(move |notification| {
+							let syncing = network.is_major_syncing();
+							if notification.is_new_best && previous_syncing != syncing {
+								previous_syncing = syncing;
+								futures::future::ready(Some(syncing))
+							} else {
+								futures::future::ready(None)
+							}
+						})
+						.map(|syncing| {
+							return Ok::<Result<
+								PubSubResult,
+								jsonrpc_core::types::error::Error
+							>, ()>(Ok(
+								PubSubResult::SyncState(PubSubSyncStatus {
+									syncing: syncing
+								})
+							));
+						})
+						.compat();
 					sink
 						.sink_map_err(|e| warn!(
 							"Error sending notifications: {:?}", e

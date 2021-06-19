@@ -185,19 +185,19 @@ fn transaction_build(
 			)
 		}),
 		from: status.as_ref().map_or({
-			match pubkey {
-				Some(pk) => H160::from(
-					H256::from_slice(Keccak256::digest(&pk).as_slice())
-				),
-				_ => H160::default()
-			}
-		}, |status| status.from),
+										 match pubkey {
+											 Some(pk) => H160::from(
+												 H256::from_slice(Keccak256::digest(&pk).as_slice())
+											 ),
+											 _ => H160::default()
+										 }
+									 }, |status| status.from),
 		to: status.as_ref().map_or({
-			match transaction.action {
-				ethereum::TransactionAction::Call(to) => Some(to),
-				_ => None
-			}
-		}, |status| status.to),
+									   match transaction.action {
+										   ethereum::TransactionAction::Call(to) => Some(to),
+										   _ => None
+									   }
+								   }, |status| status.to),
 		value: transaction.value,
 		gas_price: transaction.gas_price,
 		gas: transaction.gas_limit,
@@ -390,11 +390,11 @@ impl<B, C, P, CT, BE, H: ExHashT> EthApiT for EthApi<B, C, P, CT, BE, H> where
 
 		Ok(
 			self.overrides.schemas
-			.get(&schema)
-			.unwrap_or(&self.overrides.fallback)
-			.current_block(&block)
-			.ok_or(internal_err("fetching author through override failed"))?
-			.header.beneficiary
+				.get(&schema)
+				.unwrap_or(&self.overrides.fallback)
+				.current_block(&block)
+				.ok_or(internal_err("fetching author through override failed"))?
+				.header.beneficiary
 		)
 	}
 
@@ -405,7 +405,7 @@ impl<B, C, P, CT, BE, H: ExHashT> EthApiT for EthApi<B, C, P, CT, BE, H> where
 	fn chain_id(&self) -> Result<Option<U64>> {
 		let hash = self.client.info().best_hash;
 		Ok(Some(self.client.runtime_api().chain_id(&BlockId::Hash(hash))
-				.map_err(|err| internal_err(format!("fetch runtime chain id failed: {:?}", err)))?.into()))
+			.map_err(|err| internal_err(format!("fetch runtime chain id failed: {:?}", err)))?.into()))
 	}
 
 	fn gas_price(&self) -> Result<U256> {
@@ -1572,9 +1572,9 @@ impl<B, C, BE> EthFilterApiT for EthFilterApi<B, C, BE> where
 pub struct EthTask<B, C>(PhantomData<(B, C)>);
 
 impl<B, C> EthTask<B, C>
-where
-	C: ProvideRuntimeApi<B> + BlockchainEvents<B>,
-	B: BlockT,
+	where
+		C: ProvideRuntimeApi<B> + BlockchainEvents<B>,
+		B: BlockT,
 {
 	pub async fn pending_transaction_task(
 		client: Arc<C>,

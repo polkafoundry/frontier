@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// This file is part of Frontier.
+// This file is part of polkadot-v0.9.5.
 //
 // Copyright (c) 2020 Parity Technologies (UK) Ltd.
 //
@@ -643,6 +643,7 @@ where
 			// merge the imbalance caused by paying the fees and refunding parts of it again.
 			let adjusted_paid = paid
 				.offset(refund_imbalance)
+				.same()
 				.map_err(|_| Error::<T>::BalanceLow)?;
 			OU::on_unbalanced(adjusted_paid);
 		}
