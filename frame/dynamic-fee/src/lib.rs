@@ -22,12 +22,11 @@ use codec::{Encode, Decode};
 use sp_std::{result, cmp::{min, max}};
 use sp_runtime::RuntimeDebug;
 use sp_core::U256;
-use sp_inherents::{InherentIdentifier, InherentData, ProvideInherent, IsFatalError};
-#[cfg(feature = "std")]
-use sp_inherents::ProvideInherentData;
+use sp_inherents::{IsFatalError};
 use frame_support::{
-	decl_module, decl_storage,
+	decl_module, decl_storage, decl_event,
 	traits::Get, weights::Weight,
+	inherent::{InherentData, ProvideInherent, InherentIdentifier},
 };
 use frame_system::ensure_none;
 
@@ -114,20 +113,27 @@ pub type InherentType = U256;
 pub struct InherentDataProvider(pub InherentType);
 
 #[cfg(feature = "std")]
-impl ProvideInherentData for InherentDataProvider {
-	fn inherent_identifier(&self) -> &'static InherentIdentifier {
-		&INHERENT_IDENTIFIER
-	}
-
+#[async_trait::async_trait]
+impl sp_inherents::InherentDataProvider for InherentDataProvider {
 	fn provide_inherent_data(
 		&self,
-		inherent_data: &mut InherentData
+		inherent_data: &mut InherentData,
 	) -> Result<(), sp_inherents::Error> {
 		inherent_data.put_data(INHERENT_IDENTIFIER, &self.0)
 	}
 
-	fn error_to_string(&self, error: &[u8]) -> Option<String> {
-		InherentError::try_from(&INHERENT_IDENTIFIER, error).map(|e| format!("{:?}", e))
+	async fn try_handle_error(
+		&self,
+		identifier: &InherentIdentifier,
+		error: &[u8],
+	) -> Option<Result<(), sp_inherents::Error>> {
+		if *identifier != INHERENT_IDENTIFIER {
+			return None
+		}
+
+		let error = InherentError::decode(&mut &error[..]).ok()?;
+
+		Some(Err(sp_inherents::Error::Application(Box::from(format!("{:?}", error)))))
 	}
 }
 
@@ -144,5 +150,9 @@ impl<T: Config> ProvideInherent for Module<T> {
 
 	fn check_inherent(_call: &Self::Call, _data: &InherentData) -> result::Result<(), Self::Error> {
 		Ok(())
+	}
+
+	fn is_inherent(call: &Self::Call) -> bool {
+		true
 	}
 }
