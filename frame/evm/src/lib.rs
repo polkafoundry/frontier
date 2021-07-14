@@ -538,7 +538,7 @@ impl<T: Config> Module<T> {
 		}
 
 		AccountCodes::remove(address);
-		AccountStorages::remove_prefix(address);
+		AccountStorages::remove_prefix(address, None);
 	}
 
 	/// Create an account.
